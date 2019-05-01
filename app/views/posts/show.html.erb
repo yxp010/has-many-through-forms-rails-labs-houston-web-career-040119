@@ -1,1 +1,33 @@
+<h1><%= @post.title %></h1>
+<h3><%= @post.content %></h3>
+<ul>
+<% @post.categories.each do |category| %>
+    <li><%= category.name %></li>
+<% end %>
+</ul>
 
+Users who commented: 
+<ul>
+    <% @post.users.uniq.each do |user| %>
+        <li>
+        <%= link_to user.username, user_path(user) %>
+        </li>
+    
+    <% end %>
+    
+</ul>
+
+<% @comments.each do |comment| %>
+    <%= "#{comment.user.username} says: #{comment.content}" if comment.user != nil %><br/>
+<% end %>
+
+<%= form_for @comment, url: comments_path, method: :post do |f| %>
+    <%= f.hidden_field :post_id, value: @post.id %>
+    <%= f.text_field :content %>
+    <%= f.collection_select :user_id, User.all, :id, :username, {:prompt => 'Please select the author of this post'}%><br/>
+    <%= f.label "Create a user by username" %><br/>
+    <%= f.fields_for :user, User.new do |user_name| %>
+        <%= user_name.text_field :username %>
+    <% end %>
+    <%= f.submit "Create Comment" %>
+<% end %>
